@@ -41,6 +41,7 @@
     <Compile Include="common\util.py" />
     <Compile Include="common\__init__.py" />
     <Compile Include="core\load_image.py" />
+    <Compile Include="core\resume_train_srcnn.py" />
     <Compile Include="core\srcnn.py" />
     <Compile Include="core\train_srcnn.py" />
   </ItemGroup>

@@ -10,7 +10,8 @@ class Trainer:
     def __init__(self, network, x_train, t_train, x_test, t_test,
                  epochs=20, mini_batch_size=100,
                  optimizer='SGD', optimizer_param={'lr':0.01}, 
-                 evaluate_sample_num_per_epoch=None, verbose=True):
+                 evaluate_sample_num_per_epoch=None, verbose=True,
+                 start_epoch=0):
         self.network = network
         self.verbose = verbose
         self.x_train = x_train
@@ -30,7 +31,7 @@ class Trainer:
         self.iter_per_epoch = max(self.train_size / mini_batch_size, 1)
         self.max_iter = int(epochs * self.iter_per_epoch)
         self.current_iter = 0
-        self.current_epoch = 0
+        self.current_epoch = start_epoch
         
         self.train_loss_list = []
         self.train_acc_list = []
@@ -45,8 +46,6 @@ class Trainer:
         self.optimizer.update(self.network.params, grads)
         
         if self.current_iter % self.iter_per_epoch == 0:
-            self.network.save_params("./result/params_epoch_" + "{0:06d}".format(self.current_epoch) + ".pkl")
-
             self.current_epoch += 1
             
             x_train_sample, t_train_sample = self.x_train, self.t_train
@@ -62,6 +61,7 @@ class Trainer:
             self.test_acc_list.append(test_acc)
 
             if self.verbose: print("=== epoch:" + str(self.current_epoch) + ", train acc:" + str(train_acc) + ", test acc:" + str(test_acc) + " ===")
+            self.network.save_params("./result/params_epoch_" + "{0:06d}".format(self.current_epoch) + ".pkl")
         self.current_iter += 1
 
     def train(self):
