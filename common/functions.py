@@ -40,7 +40,8 @@ def softmax(x):
 
 
 def mean_squared_error(y, t):
-    return 0.5 * np.sum((y-t)**2)
+    if t is None: return 0
+    return 1.0 * np.sum((y-t)**2) / y.size
 
 
 def cross_entropy_error(y, t):

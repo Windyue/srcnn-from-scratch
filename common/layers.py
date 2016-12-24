@@ -22,6 +22,27 @@ class Relu:
         return dx
 
 
+class ReluWithLoss:
+    def __init__(self):
+        self.mask = None
+        self.y = None # Reluの出力 
+        self.t = None # 教師データ
+
+    def forward(self, x, t):
+        self.loss = None
+        self.t = t
+        self.mask = (x <= 0)
+        out = x.copy()
+        out[self.mask] = 0
+        self.y = out.copy()
+        self.loss = mean_squared_error(self.y, self.t)
+
+        return self.y, self.loss
+
+    def backward(self, dout=1):
+        return self.y - self.t
+
+
 class Sigmoid:
     def __init__(self):
         self.out = None
