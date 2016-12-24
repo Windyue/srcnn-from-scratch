@@ -43,6 +43,7 @@
     <Compile Include="core\load_image.py" />
     <Compile Include="core\resume_train_srcnn.py" />
     <Compile Include="core\srcnn.py" />
+    <Compile Include="core\test_srcnn.py" />
     <Compile Include="core\train_srcnn.py" />
   </ItemGroup>
   <ItemGroup>

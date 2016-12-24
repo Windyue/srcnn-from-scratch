@@ -10,3 +10,4 @@ __pycache__/
 #only this app
 dataset/
 result/
+*.png
