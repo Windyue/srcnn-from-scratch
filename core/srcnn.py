@@ -1,16 +1,18 @@
 # coding: utf-8
 import sys, os
-sys.path.append(os.curdir)
 import pickle
-import numpy as np
 from collections import OrderedDict
 from common.layers import *
 from common.functions import *
 
+sys.path.append(os.curdir)
+
 
 class SRCNN:
-    def __init__(self, params={'f1':9, 'f2':1, 'f3':5, 'n1':64, 'n2':32, 'channel':3}, 
+    def __init__(self, params=None,
                  weight_init_std=0.01):
+        if params is None:
+            params = {'f1': 9, 'f2': 1, 'f3': 5, 'n1': 64, 'n2': 32, 'channel': 3}
         stride = 1
         pad = 0
         filter1_size = params['f1']
@@ -21,16 +23,12 @@ class SRCNN:
         channel = params['channel']
 
         # 重みの初期化
-        self.params = {}
-        self.params['W1'] = weight_init_std * \
-                            np.random.randn(filter1_num, channel, filter1_size, filter1_size)
-        self.params['b1'] = np.zeros(filter1_num)
-        self.params['W2'] = weight_init_std * \
-                            np.random.randn(filter2_num, filter1_num, filter2_size, filter2_size)
-        self.params['b2'] = np.zeros(filter2_num)
-        self.params['W3'] = weight_init_std * \
-                            np.random.randn(channel, filter2_num, filter3_size, filter3_size)
-        self.params['b3'] = np.zeros(channel)
+        self.params = {'W1': weight_init_std * np.random.randn(filter1_num, channel, filter1_size, filter1_size),
+                       'b1': np.zeros(filter1_num),
+                       'W2': weight_init_std * np.random.randn(filter2_num, filter1_num, filter2_size, filter2_size),
+                       'b2': np.zeros(filter2_num),
+                       'W3': weight_init_std * np.random.randn(channel, filter2_num, filter3_size, filter3_size),
+                       'b3': np.zeros(channel)}
 
         # レイヤの生成
         self.layers = OrderedDict()
@@ -61,7 +59,7 @@ class SRCNN:
         y = self.predict(x)
         mse = mean_squared_error(y, t)
         max_intensity = 1.0
-        return 10 * np.log10(max_intensity*max_intensity/mse)
+        return 10 * np.log10(max_intensity * max_intensity / mse)
 
     def gradient(self, x, t):
         """勾配を求める（誤差逆伝搬法）
@@ -81,8 +79,7 @@ class SRCNN:
         y, loss = self.loss(x, t)
 
         # backward
-        dout = 1
-        dout = self.last_layer.backward(dout)
+        dout = self.last_layer.backward()
 
         layers = list(self.layers.values())
         layers.reverse()
@@ -90,13 +87,11 @@ class SRCNN:
             dout = layer.backward(dout)
 
         # 設定
-        grads = {}
-        grads['W1'], grads['b1'] = self.layers['Conv1'].dW, self.layers['Conv1'].db
-        grads['W2'], grads['b2'] = self.layers['Conv2'].dW, self.layers['Conv2'].db
-        grads['W3'], grads['b3'] = self.layers['Conv3'].dW, self.layers['Conv3'].db
+        grads = {'W1': self.layers['Conv1'].dW, 'b1': self.layers['Conv1'].db, 'W2': self.layers['Conv2'].dW,
+                 'b2': self.layers['Conv2'].db, 'W3': self.layers['Conv3'].dW, 'b3': self.layers['Conv3'].db}
 
         return grads, loss
-        
+
     def save_params(self, file_name="srcnn_params.pkl"):
         params = {}
         for key, val in self.params.items():
@@ -111,5 +106,5 @@ class SRCNN:
             self.params[key] = val
 
         for i, key in enumerate(['Conv1', 'Conv2', 'Conv3']):
-            self.layers[key].W = self.params['W' + str(i+1)]
-            self.layers[key].b = self.params['b' + str(i+1)]
+            self.layers[key].W = self.params['W' + str(i + 1)]
+            self.layers[key].b = self.params['b' + str(i + 1)]

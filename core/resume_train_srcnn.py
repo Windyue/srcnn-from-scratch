@@ -1,5 +1,4 @@
 # coding: utf-8
-import sys, os
 from load_image import load_image
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,7 +13,7 @@ print('resume training...')
 start_epoch = 100
 max_epochs = 50000
 
-network = SRCNN(params={'f1':9, 'f2':1, 'f3':5, 'n1':64, 'n2':32, 'channel':3}, 
+network = SRCNN(params={'f1': 9, 'f2': 1, 'f3': 5, 'n1': 64, 'n2': 32, 'channel': 3},
                 weight_init_std=0.01)
 
 start_epoch_file = "./result/params_epoch_" + "{0:06d}".format(start_epoch) + ".pkl"
