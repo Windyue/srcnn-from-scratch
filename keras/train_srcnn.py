@@ -3,6 +3,7 @@ from __future__ import print_function, division
 from keras import backend as K
 from keras.models import Sequential
 from keras.layers import Convolution2D
+from keras.callbacks import ModelCheckpoint, CSVLogger, TensorBoard
 from keras.optimizers import SGD, Adam, RMSprop
 from load_image import load_image
 import numpy as np
@@ -11,7 +12,7 @@ import tensorflow as tf
 np.random.seed(1337)  # for reproducibility
 
 batch_size = 50
-nb_epoch = 20
+nb_epoch = 1000
 
 (X_train, Y_train), (X_test, Y_test) = load_image()
 
@@ -50,6 +51,15 @@ def PSNRLoss(y_true, y_pred):
     # return -10. * np.log10(K.mean(K.square(y_pred - y_true)))
     return -10. * log10(K.mean(K.square(y_pred - y_true)))
 
+callbacks = []
+# 各epochでのモデルの保存
+callbacks.append(ModelCheckpoint(filepath="result/model.ep{epoch:06d}.h5"))
+# 学習経過をCSV保存
+callbacks.append(CSVLogger("result/history.csv"))
+# TensorBoard用のログ出力
+# todo: tensorboard起動時にUnicodeDecodeError
+# callbacks.append(TensorBoard(log_dir="result/"))
+
 model = Sequential()
 # backendでtensorflowを使っているときはinput_shape=(rows, cols, channels)の順。
 model.add(Convolution2D(64, 9, 9, activation='relu', border_mode='valid', name='level1', input_shape=(64, 64, 3)))
@@ -64,7 +74,8 @@ model.compile(loss='mse',
 
 history = model.fit(X_train, Y_train,
                     batch_size=batch_size, nb_epoch=nb_epoch,
-                    verbose=1, validation_data=(X_test, Y_test))
+                    verbose=1, validation_data=(X_test, Y_test),
+                    callbacks=callbacks)
 
 score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test score:', score[0])
