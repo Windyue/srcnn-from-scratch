@@ -43,10 +43,10 @@ model_file = "./result/model.ep" + "{0:06d}".format(target_epoch) + ".h5"
 model = load_model(model_file, custom_objects={'PSNRLoss': PSNRLoss})
 
 test_img = np.array(Image.open("./dataset/input/{0:05d}.bmp".format(test_image_index)))
-test_img = test_img.transpose(2, 0, 1).astype(np.float32) / 255.
-d = test_img.reshape((1, test_img.shape[1], test_img.shape[2], test_img.shape[0]))
+test_img = test_img.astype(np.float32) / 255.
+d = test_img.reshape((1, test_img.shape[0], test_img.shape[1], test_img.shape[2]))
 
-y = model.predict(d)
+y = model.predict(d, batch_size=50)
 
 img_convert = y.reshape((y.shape[1], y.shape[2], y.shape[3]))
 img_convert[np.where(img_convert > 1.0)] = 1.0
